@@ -4,60 +4,34 @@ from extractor import extraer_datos_mensaje, guardar_operacion_db, obtener_conex
 
 st.set_page_config(page_title="Nest Space - Control de Operaciones", layout="wide")
 
-st.title("🏦 Nest Space - Panel de Control de Operaciones Multimoneda")
-st.caption("Entorno Local de Pruebas (Offline) - Demostración Académica para Tesis")
+st.title("Nest Space - Panel de Control de Operaciones Multimoneda")
+st.caption("Version Beta")
 
 if "historial_local" not in st.session_state:
     st.session_state["historial_local"] = []
 
-# Plantilla predeterminada sugerida para los operadores
-PLANTILLA_ESTANDAR = """📌 REGISTRO DE OPERACIÓN
-Código: Chile-23103
-Monto: 50000
-Tasa: 0.925
-Detalle: Pago Móvil Venezuela"""
 
-EJEMPLO_MULTIPLE = """Chile-23103
-Pago Móvil 
-Venezuela 
-50.000 a 0,925
-Bs. 46.250
-
-Pe 23102
-6.200 bs
-*20 soles*
-
-México-23093
-100 a 43
-Bs. 4.300 Mxn
-
-Chile-23034
-1.000 a 255
-Clp. 255.000"""
 
 st.markdown("---")
 col_izq, col_der = st.columns([1, 1.2])
 
 with col_izq:
-    st.subheader("📩 Entrada de Mensajes (Soporta Multitransacción)")
+    st.subheader("Entrada de Mensajes (Soporta Multitransacción)")
     
     c_btn1, c_btn2 = st.columns(2)
     with c_btn1:
-        if st.button("📋 Cargar Plantilla Estandar"):
-            st.session_state["mensaje_texto"] = PLANTILLA_ESTANDAR
-    with c_btn2:
-        if st.button("⚡ Cargar Ráfaga Múltiple"):
-            st.session_state["mensaje_texto"] = EJEMPLO_MULTIPLE
+        if st.button("Cargar Plantilla Estandar"):
+            st.session_state["mensaje_texto"]
 
     mensaje_input = st.text_area(
         "Pega aquí uno o varios mensajes de WhatsApp:",
-        value=st.session_state.get("mensaje_texto", EJEMPLO_MULTIPLE),
+        value=st.session_state.get("mensaje_texto"),
         height=240
     )
     
-    telefono_input = st.text_input("Teléfono del Remitente:", value="+584129048187")
+    telefono_input = st.text_input("Teléfono del Remitente:", value="+58")
     
-    if st.button("🚀 Procesar y Guardar Transacción(es)", use_container_width=True):
+    if st.button("Procesar y Guardar Transacción(es)", use_container_width=True):
         datos = extraer_datos_mensaje(mensaje_input, telefono_input)
         exito_db, msg_db = guardar_operacion_db(datos)
         
@@ -70,7 +44,7 @@ with col_izq:
             st.warning("⚠️ MySQL no conectado. Registros guardados en memoria temporal.")
 
 with col_der:
-    st.subheader("📊 Transacciones Detectadas en Tiempo Real")
+    st.subheader("Transacciones Detectadas en Tiempo Real")
     
     # Ahora la función siempre devuelve una lista, no necesita conversión
     lista_preview = extraer_datos_mensaje(mensaje_input, telefono_input)
@@ -87,7 +61,7 @@ with col_der:
             st.caption(f"**Modo:** {op['tipo_procesamiento']} | **Moneda:** {op['moneda']}")
 
 st.markdown("---")
-st.subheader("📋 Registro General de Transacciones (Base de Datos)")
+st.subheader("Registro General de Transacciones (Base de Datos)")
 
 conn = obtener_conexion()
 if conn:
@@ -116,7 +90,7 @@ if not df.empty:
     st.dataframe(df, use_container_width=True)
     
     st.download_button(
-        label="📥 Exportar Reporte a CSV",
+        label="Exportar Reporte a CSV",
         data=df.to_csv(index=False).encode('utf-8'),
         file_name="reporte_operaciones.csv",
         mime="text/csv"
