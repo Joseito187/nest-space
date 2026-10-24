@@ -51,7 +51,7 @@ con col_izq:
 
     mensaje_input = st.texto_área(
         "Pega aquí uno o varios mensajes de WhatsApp:",
-        valor=st.estado_sesión.get("mensaje_texto", EJEMPLO_MÚLTIPLE),
+        valor=st.estado_sesión.get("mensaje_texto", EJEMPLO_MULTIPLE),
         alta=240
     )
     
@@ -72,7 +72,6 @@ con col_izq:
 con col_der:
     st.subencabezado("Transacciones Detectadas en Tiempo Real")
     
-    # Ahora la función siempre devuelve una lista, no es necesaria conversación
     lista_preview = extraer_datos_mensaje(mensaje_input, telefono_input)
     
     st.información(f"Se han detectado **{len(lista_preview)}** operación(es) en este mensaje.")
