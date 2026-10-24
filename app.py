@@ -12,12 +12,28 @@ if "historial_local" not in st.session_state:
 
 # Plantilla predeterminada sugerida para los operadores
 PLANTILLA_ESTANDAR = """REGISTRO DE OPERACIÓN
-Código: 
-Monto: 
-Bs: 
-Tasa: 
+Código: Chile-23103
+Monto: 50000
+Tasa: 0.925
 Detalle: Pago Móvil Venezuela"""
 
+EJEMPLO_MULTIPLE = """Chile-23103
+Pago Móvil 
+Venezuela 
+50.000 a 0,925
+Bs. 46.250
+
+Pe 23102
+6.200 bs
+*20 soles*
+
+México-23093
+100 a 43
+Bs. 4.300 Mxn
+
+Chile-23034
+1.000 a 255
+Clp. 255.000"""
 
 st.markdown("---")
 col_izq, col_der = st.columnas([1, 1.2])
@@ -29,10 +45,13 @@ con col_izq:
     con c_btn1:
         si st.botón(„Cargar Plantilla Estandar"):
             st.estado_sesión["mensaje_texto"] = PLANTILLA_ESTANDAR
+    con c_btn2:
+        si st.botón("Cargar Ráfaga Múltiple"):
+            st.estado_sesión["mensaje_texto"] = EJEMPLO_MULTIPLE
 
     mensaje_input = st.texto_área(
         "Pega aquí uno o varios mensajes de WhatsApp:",
-        valor=st.estado_sesión.get("mensaje_texto"),
+        valor=st.estado_sesión.get("mensaje_texto", EJEMPLO_MULTIPLE),
         alta=240
     )
     
