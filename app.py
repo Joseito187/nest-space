@@ -10,6 +10,9 @@ st.caption("Version Beta")
 if "historial_local" not in st.session_state:
     st.session_state["historial_local"] = []
 
+if "mensaje_texto" not in st.session_state:
+    st.session_state["mensaje_texto"] = ""
+
 # Plantilla predeterminada sugerida para los operadores
 PLANTILLA_ESTANDAR = """REGISTRO DE OPERACIÓN
 Código: Chile-23103
@@ -51,39 +54,44 @@ with col_izq:
 
     mensaje_input = st.text_area(
         "Pega aquí uno o varios mensajes de WhatsApp:",
-        value=st.session_state.get("mensaje_texto", EJEMPLO_MULTIPLE),
+        value=st.session_state["mensaje_texto"],
         height=240
     )
     
     telefono_input = st.text_input("Teléfono del Remitente:", value="+584129048187")
     
     if st.button("Procesar y Guardar Transacción(es)", use_container_width=True):
-        datos = extraer_datos_mensaje(mensaje_input, telefono_input)
-        exito_db, msg_db = guardar_operacion_db(datos)
-        
-        lista_ops = datos if isinstance(datos, list) else [datos]
-        st.session_state["historial_local"].extend(lista_ops)
-        
-        if exito_db:
-            st.success(f"✅ {msg_db}")
+        if not mensaje_input.strip():
+            st.warning("⚠️ Por favor ingresa o carga un mensaje antes de procesar.")
         else:
-            st.warning("⚠️ MySQL no conectado. Registros guardados en memoria temporal.")
+            datos = extraer_datos_mensaje(mensaje_input, telefono_input)
+            exito_db, msg_db = guardar_operacion_db(datos)
+            
+            lista_ops = datos if isinstance(datos, list) else [datos]
+            st.session_state["historial_local"].extend(lista_ops)
+            
+            if exito_db:
+                st.success(f"✅ {msg_db}")
+            else:
+                st.warning("⚠️ MySQL no conectado. Registros guardados en memoria temporal.")
 
 with col_der:
     st.subheader("Transacciones Detectadas en Tiempo Real")
     
-    lista_preview = extraer_datos_mensaje(mensaje_input, telefono_input)
-    
-    st.info(f"Se han detectado **{len(lista_preview)}** operación(es) en este mensaje.")
-    
-    for idx, op in enumerate(lista_preview, 1):
-        with st.expander(f"Operación #{idx}: **{op['codigo_operacion']}** ({op['pais_origen']} 🌎)", expanded=True):
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Código", op["codigo_operacion"])
-            m2.metric(f"Monto ({op['moneda']})", f"{op['monto_divisa']:,.2f}")
-            m3.metric("Tasa Cambio", f"{op['tasa_cambio']}")
-            m4.metric("Total Bolívares", f"{op['monto_bolivares']:,.2f} Bs.")
-            st.caption(f"**Modo:** {op['tipo_procesamiento']} | **Moneda:** {op['moneda']}")
+    if mensaje_input.strip():
+        lista_preview = extraer_datos_mensaje(mensaje_input, telefono_input)
+        st.info(f"Se han detectado **{len(lista_preview)}** operación(es) en este mensaje.")
+        
+        for idx, op in enumerate(lista_preview, 1):
+            with st.expander(f"Operación #{idx}: **{op['codigo_operacion']}** ({op['pais_origen']} 🌎)", expanded=True):
+                m1, m2, m3, m4 = st.columns(4)
+                m1.metric("Código", op["codigo_operacion"])
+                m2.metric(f"Monto ({op['moneda']})", f"{op['monto_divisa']:,.2f}")
+                m3.metric("Tasa Cambio", f"{op['tasa_cambio']}")
+                m4.metric("Total Bolívares", f"{op['monto_bolivares']:,.2f} Bs.")
+                st.caption(f"**Modo:** {op['tipo_procesamiento']} | **Moneda:** {op['moneda']}")
+    else:
+        st.info("👋 El panel está limpio. Pega un mensaje o haz clic en los botones de la izquierda para cargar una plantilla de prueba.")
 
 st.markdown("---")
 st.subheader("Registro General de Transacciones (Base de Datos)")
