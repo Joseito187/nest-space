@@ -46,12 +46,12 @@ con col_izq:
         si st.botón(„Cargar Plantilla Estandar"):
             st.estado_sesión["mensaje_texto"] = PLANTILLA_ESTANDAR
     con c_btn2:
-        si st.botón("Cargar Ráfaga Múltiple"):
+        si st.botón(„Cargar Ráfaga Múltiple"):
             st.estado_sesión["mensaje_texto"] = EJEMPLO_MULTIPLE
 
     mensaje_input = st.texto_área(
         "Pega aquí uno o varios mensajes de WhatsApp:",
-        valor=st.estado_sesión.get("mensaje_texto", EJEMPLO_MULTIPLE),
+        valor=st.estado_sesión.get("mensaje_texto", EJEMPLO_MÚLTIPLE),
         alta=240
     )
     
