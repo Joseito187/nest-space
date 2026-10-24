@@ -43,7 +43,7 @@ con col_izq:
     
     c_btn1, c_btn2 = st.columnas(2)
     con c_btn1:
-        si st.botón(„Cargar Plantilla Estandar"):
+        if st.botón(„Cargar Plantilla Estandar"):
             st.estado_sesión["mensaje_texto"] = PLANTILLA_ESTANDAR
     con c_btn2:
         si st.botón(„Cargar Ráfaga Múltiple"):
