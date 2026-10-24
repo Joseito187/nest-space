@@ -10,90 +10,97 @@ st.caption("Version Beta")
 if "historial_local" not in st.session_state:
     st.session_state["historial_local"] = []
 
+# Plantilla predeterminada sugerida para los operadores
+PLANTILLA_ESTANDAR = """REGISTRO DE OPERACIÓN
+Código: 
+Monto: 
+Bs: 
+Tasa: 
+Detalle: Pago Móvil Venezuela"""
 
 
 st.markdown("---")
-col_izq, col_der = st.columns([1, 1.2])
+col_izq, col_der = st.columnas([1, 1.2])
 
-with col_izq:
-    st.subheader("Entrada de Mensajes (Soporta Multitransacción)")
+con col_izq:
+    st.subencabezado("Entrada de Mensajes (Soporta Multitransacción)")
     
-    c_btn1, c_btn2 = st.columns(2)
-    with c_btn1:
-        if st.button("Cargar Plantilla Estandar"):
-            st.session_state["mensaje_texto"]
+    c_btn1, c_btn2 = st.columnas(2)
+    con c_btn1:
+        si st.botón(„Cargar Plantilla Estandar"):
+            st.estado_sesión["mensaje_texto"] = PLANTILLA_ESTANDAR
 
-    mensaje_input = st.text_area(
+    mensaje_input = st.texto_área(
         "Pega aquí uno o varios mensajes de WhatsApp:",
-        value=st.session_state.get("mensaje_texto"),
-        height=240
+        valor=st.estado_sesión.get("mensaje_texto"),
+        alta=240
     )
     
-    telefono_input = st.text_input("Teléfono del Remitente:", value="+58")
+    telefono_input = st.entrada_texto(„Teléfono del Remitente:", valor="+584129048187")
     
-    if st.button("Procesar y Guardar Transacción(es)", use_container_width=True):
+    si st.botón("Procesar y Guardar Transacción(es)", use_container_width=Verdadero):
         datos = extraer_datos_mensaje(mensaje_input, telefono_input)
         exito_db, msg_db = guardar_operacion_db(datos)
         
-        lista_ops = datos if isinstance(datos, list) else [datos]
-        st.session_state["historial_local"].extend(lista_ops)
+        lista_ops = datos si esinstancia(datos, lista) else [datos]
+        st.estado_sesión["historial_local"].extender(lista_ops)
         
-        if exito_db:
-            st.success(f"✅ {msg_db}")
-        else:
-            st.warning("⚠️ MySQL no conectado. Registros guardados en memoria temporal.")
+        si exito_db:
+            st.éxito(f"✅ {msg_db}")
+        de lo contrario:
+            st.advertencia("⚠️ MySQL no conectado. Registros guardados en memoria temporal.")
 
-with col_der:
-    st.subheader("Transacciones Detectadas en Tiempo Real")
+con col_der:
+    st.subencabezado("Transacciones Detectadas en Tiempo Real")
     
-    # Ahora la función siempre devuelve una lista, no necesita conversión
+    # Ahora la función siempre devuelve una lista, no es necesaria conversación
     lista_preview = extraer_datos_mensaje(mensaje_input, telefono_input)
     
-    st.info(f"Se han detectado **{len(lista_preview)}** operación(es) en este mensaje.")
+    st.información(f"Se han detectado **{len(lista_preview)}** operación(es) en este mensaje.")
     
-    for idx, op in enumerate(lista_preview, 1):
-        with st.expander(f"Operación #{idx}: **{op['codigo_operacion']}** ({op['pais_origen']} 🌎)", expanded=True):
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Código", op["codigo_operacion"])
-            m2.metric(f"Monto ({op['moneda']})", f"{op['monto_divisa']:,.2f}")
-            m3.metric("Tasa Cambio", f"{op['tasa_cambio']}")
-            m4.metric("Total Bolívares", f"{op['monto_bolivares']:,.2f} Bs.")
-            st.caption(f"**Modo:** {op['tipo_procesamiento']} | **Moneda:** {op['moneda']}")
+    para idx, op en enumerar(lista_preview, 1):
+        con st.expansor(f"Operación #{idx}: **{op['codigo_operacion']}** ({op['pais_origen']} 🌎)", expandido=Verdadero):
+            m1, m2, m3, m4=st.columnas(4)
+            m1.métrica("Código", op["codigo_operacion"])
+            m2.métrica(f"Monto ({op['moneda']})", f"{op['monto_divisa']:,.2f}")
+            m3.métrica(„Tasa Cambio", f"{op['tasa_cambio']}")
+            m4.métrica(„Total Bolívares", f"{op['monto_bolívares']:,.2f} Bs.")
+            st.subtípulo(f"**Modo:** {op['tipo_proceso']} | **Moneda:** {op['moneda']}")
 
 st.markdown("---")
-st.subheader("Registro General de Transacciones (Base de Datos)")
+st.subencabezado("Registro General de Transacciones (Base de Datos)")
 
 conn = obtener_conexion()
-if conn:
-    query = """
-        SELECT o.id_operacion AS ID, 
-               o.codigo_operacion AS Código, 
-               o.monto_divisa AS 'Monto Divisa',
-               o.moneda AS Moneda,
+si conn:
+    consulta = """
+        SELECCIONE o.id_operacion COMO ID, 
+               o.codigo_operacion COMO Código, 
+               o.monto_divisa COMO 'Monto Divisa',
+               o.moneda COMO Moneda,
                o.tasa_cambio AS Tasa, 
-               o.monto_bolivares AS 'Total (Bs)', 
+               o.monto_bolívares AS 'Total (Bs)', 
                c.telefono AS Cliente, 
-               o.fecha_hora AS Fecha
-        FROM operaciones o
-        LEFT JOIN clientes c ON o.id_cliente = c.id_cliente
-        ORDER BY o.fecha_hora DESC
+               o.fecha_hora COMO Fecha
+        DESDE operaciones o
+        ÚNASE A LA IZQUIERDA clientes c ON o.id_cliente = c.id_cliente
+        ORDENAR POR o.fecha_hora DESC
     """
-    try:
-        df = pd.read_sql(query, conn)
-        conn.close()
-    except Exception:
-        df = pd.DataFrame(st.session_state["historial_local"])
-else:
-    df = pd.DataFrame(st.session_state["historial_local"])
+    intentar:
+        df = pd.leer_sql(consulta, conexión)
+        conn.cerrar()
+    excepto Excelencia:
+        df = pd.Marco de datos(st.estado_sesión["historial_local"])
+de lo contrario:
+    df = pd.Marco de datos(st.estado_sesión["historial_local"])
 
-if not df.empty:
-    st.dataframe(df, use_container_width=True)
+si no df.vacío:
+    st.marco(df, use_container_width=Verdadero)
     
-    st.download_button(
-        label="Exportar Reporte a CSV",
-        data=df.to_csv(index=False).encode('utf-8'),
-        file_name="reporte_operaciones.csv",
-        mime="text/csv"
+    st.descargar_botón(
+        etiqueta="Exportar Reporte a CSV",
+        datos=df.to_csv(índice=Falso).codificar('utf-8'),
+        nombre_archivo="reportaje_operaciones.csv",
+        mime="texto/csv"
     )
-else:
-    st.write("No hay transacciones registradas todavía.")
+de lo contrario:
+    st.escribir("No hay transacciones registradas hoy.")
