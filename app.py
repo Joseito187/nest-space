@@ -58,7 +58,7 @@ with col_izq:
         height=240
     )
     
-    telefono_input = st.text_input("Teléfono del Remitente:", value="+584129048187")
+    telefono_input = st.text_input("Teléfono del Remitente:", value="")
     
     if st.button("Procesar y Guardar Transacción(es)", use_container_width=True):
         if not mensaje_input.strip():
